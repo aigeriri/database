@@ -1,16 +1,11 @@
+
+--3
 SELECT 
-    d.department_id,
-    DATE_TRUNC('quarter', CURRENT_DATE) AS quarter,
-    SUM(ep.hours_worked * e.hourly_rate) AS total_cost
-FROM 
-    employee_projects ep
-JOIN 
-    employees e ON ep.employee_id = e.employee_id
-JOIN 
-    projects p ON ep.project_id = p.project_id
-JOIN 
-    departments d ON p.department_id = d.department_id
-GROUP BY 
-    d.department_id, DATE_TRUNC('quarter', CURRENT_DATE), d.budget
-HAVING 
-    SUM(ep.hours_worked * e.hourly_rate) > d.budget;
+    e.department_id,
+    strftime('%Y', p.project_date) AS year,
+    (strftime('%m', p.project_date) - 1) / 3 + 1 AS quarter,
+    SUM(ep.hours_worked * e.hourly_rate) AS total_cost,
+    d.budget
+FROM employee_projects ep
+JOIN projects p ON ep.project_id = p.project_id
+JOIN employees e ON ep.employee_id = e.employee_id
