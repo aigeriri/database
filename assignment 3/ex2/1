@@ -1,0 +1,17 @@
+SELECT 
+    p.project_id,
+    d.department_id,
+    d.budget,
+    SUM(ep.hours_worked * e.hourly_rate) AS total_cost
+FROM 
+    employee_projects ep
+JOIN 
+    employees e ON ep.employee_id = e.employee_id
+JOIN 
+    projects p ON ep.project_id = p.project_id
+JOIN 
+    departments d ON p.department_id = d.department_id
+GROUP BY 
+    p.project_id, d.department_id, d.budget
+HAVING 
+    SUM(ep.hours_worked * e.hourly_rate) > d.budget;

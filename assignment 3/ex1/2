@@ -1,0 +1,26 @@
+SELECT 
+    p.category,
+    c.customer_id,
+    SUM(p.price * oi.quantity) AS total_spend
+FROM 
+    order_items oi
+JOIN 
+    orders o ON oi.order_id = o.order_id
+JOIN 
+    products p ON oi.product_id = p.product_id
+JOIN 
+    customers c ON o.customer_id = c.customer_id
+GROUP BY 
+    p.category, c.customer_id
+HAVING 
+    SUM(p.price * oi.quantity) = (
+        SELECT MAX(total_spend) 
+        FROM (
+            SELECT SUM(p.price * oi.quantity) AS total_spend
+            FROM order_items oi
+            JOIN orders o ON oi.order_id = o.order_id
+            JOIN products p ON oi.product_id = p.product_id
+            WHERE p.category = p.category -- correlate the category
+            GROUP BY c.customer_id
+        ) AS category_spends
+    );

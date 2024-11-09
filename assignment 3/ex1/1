@@ -1,0 +1,16 @@
+SELECT 
+    p.category,
+    c.state,
+    SUM(p.price * oi.quantity) AS total_revenue
+FROM 
+    order_items oi
+JOIN 
+    orders o ON oi.order_id = o.order_id
+JOIN 
+    products p ON oi.product_id = p.product_id
+JOIN 
+    customers c ON o.customer_id = c.customer_id
+WHERE 
+    o.order_date IS NOT NULL  -- Assuming a completed order is one with a date
+GROUP BY 
+    p.category, c.state;

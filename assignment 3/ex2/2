@@ -1,0 +1,33 @@
+WITH RECURSIVE employee_hours AS (
+    SELECT 
+        ep.employee_id,
+        ep.hours_worked,
+        DATE_TRUNC('week', CURRENT_DATE) AS week_start
+    FROM 
+        employee_projects ep
+    WHERE 
+        ep.hours_worked > 0
+    
+    UNION ALL
+    
+    SELECT 
+        eh.employee_id,
+        eh.hours_worked + ep.hours_worked,
+        eh.week_start
+    FROM 
+        employee_hours eh
+    JOIN 
+        employee_projects ep ON eh.employee_id = ep.employee_id
+    WHERE 
+        EXTRACT(MONTH FROM ep.hours_worked) = EXTRACT(MONTH FROM CURRENT_DATE - INTERVAL '1 month')
+)
+SELECT 
+    employee_id,
+    AVG(hours_worked) AS avg_hours_per_week
+FROM 
+    employee_hours
+GROUP BY 
+    employee_id
+HAVING 
+    AVG(hours_worked) > 40;
+
